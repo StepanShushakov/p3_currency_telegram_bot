@@ -15,6 +15,11 @@ public class SubscribersService {
 
     private final SubscribersRepository subscribersRepository;
 
+    private Subscribers getSubscribers(Long chatId) {
+        return subscribersRepository.findById(chatId)
+                .orElseThrow();
+    }
+
     public void addNewSubscriber(Long id) {
         Optional<Subscribers> optionalSubscriber = subscribersRepository.findById(id);
         if (optionalSubscriber.isPresent()) {
@@ -27,10 +32,22 @@ public class SubscribersService {
     }
 
     public String getStringResultOfSubscribeInstallation(Long chatId, Double price) {
-        Subscribers subscriber = subscribersRepository.findById(chatId)
-                .orElseThrow();
+        Subscribers subscriber = getSubscribers(chatId);
         subscriber.setPrice(price);
         subscribersRepository.save(subscriber);
         return "Новая подписка создана на стоимость " + price;
+    }
+
+    public void unsubscribe(Long chatId) {
+        Subscribers subscribers = getSubscribers(chatId);
+        subscribers.setPrice(null);
+        subscribersRepository.save(subscribers);
+    }
+
+    public String getSubscription(Long chatId) {
+        Subscribers subscribers = getSubscribers(chatId);
+        return (subscribers.getPrice() == null
+                ? "Активные подписки отсутствуют"
+                : "Вы подписаны на стоимость биткоина " + subscribers.getPrice() + " USD");
     }
 }

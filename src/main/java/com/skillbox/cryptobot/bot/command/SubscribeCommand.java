@@ -1,5 +1,6 @@
 package com.skillbox.cryptobot.bot.command;
 
+import com.skillbox.cryptobot.service.CryptoCurrencyService;
 import com.skillbox.cryptobot.service.SubscribersService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +10,6 @@ import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.bots.AbsSender;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 /**
  * Обработка команды подписки на курс валюты
@@ -20,6 +20,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 public class SubscribeCommand implements IBotCommand {
 
     private final SubscribersService subscribersService;
+    private final CryptoCurrencyService service;
 
     @Override
     public String getCommandIdentifier() {
@@ -36,21 +37,30 @@ public class SubscribeCommand implements IBotCommand {
         Long chatId = message.getChatId();
         SendMessage answer = new SendMessage();
         answer.setChatId(chatId);
+        boolean formatIsCorrect = false;
         if (arguments.length == 0) {
             answer.setText("Не передана стоимость, на которую нужно установить подписку");
         } else {
 
             try {
-                answer.setText(subscribersService.getStringResultOfSubscribeInstallation(chatId, Double.parseDouble(arguments[0].replace(',','.'))));
+                answer.setText(subscribersService.getStringResultOfSubscribeInstallation(chatId,
+                        Double.parseDouble(arguments[0].replace(',','.'))));
+                formatIsCorrect = true;
             } catch (Exception exception) {
-                answer.setText("<b>Не правильно передана стоимость, для установки подписки!</b>\n" +
+                answer.setText("<b>Неправильно передана стоимость, для установки подписки!</b>\n" +
                         "<u>ожидается число</u>, а передано: " + arguments[0]);
                 answer.setParseMode(ParseMode.HTML);
             }
         }
         try {
+            if (formatIsCorrect) {
+                absSender.execute((SendMessage.builder()
+                        .chatId(chatId)
+                        .text(service.getBitcoinPriceDescription())
+                        .build()));
+            }
             absSender.execute(answer);
-        } catch (TelegramApiException e) {
+        } catch (Exception e) {
             log.error("Error occurred in /subscribe command", e);
         }
     }
