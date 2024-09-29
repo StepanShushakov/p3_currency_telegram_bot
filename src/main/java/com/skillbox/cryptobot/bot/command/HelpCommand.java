@@ -1,7 +1,6 @@
 package com.skillbox.cryptobot.bot.command;
 
 import com.skillbox.cryptobot.bot.command.internalSupprot.CommandDescription;
-import com.skillbox.cryptobot.service.SubscribersService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -11,41 +10,29 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-
-/**
- * Обработка команды начала работы с ботом
- */
 @Service
 @AllArgsConstructor
 @Slf4j
-public class StartCommand implements IBotCommand {
-
-    private final SubscribersService subscribersService;
-
+public class HelpCommand implements IBotCommand {
     @Override
     public String getCommandIdentifier() {
-        return "start";
+        return "help";
     }
 
     @Override
     public String getDescription() {
-        return "Запускает бота";
+        return "Выводит справочную информацию";
     }
 
     @Override
     public void processMessage(AbsSender absSender, Message message, String[] arguments) {
-        Long chatId = message.getChatId();
         SendMessage answer = new SendMessage();
-        answer.setChatId(chatId);
-
-        answer.setText("""
-                Привет! Данный бот помогает отслеживать стоимость биткоина.
-                """ + CommandDescription.get());
+        answer.setChatId(message.getChatId());
+        answer.setText(CommandDescription.get());
         try {
-            subscribersService.addNewSubscriber(chatId);
             absSender.execute(answer);
         } catch (TelegramApiException e) {
-            log.error("Error occurred in /start command", e);
+            log.error("Error occurred in /help command", e);
         }
     }
 }

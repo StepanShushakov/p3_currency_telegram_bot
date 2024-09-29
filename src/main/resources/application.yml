@@ -13,9 +13,19 @@ binance:
   api:
     getPrice: https://api.binance.com/api/v3/avgPrice?symbol=BTCUSDT
 
-db:
-  driver:
-    name: org.postgresql.Driver
-  url: jdbc:postgresql://localhost:5432/db
-  user: root
-  password: root
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/db
+    password: root
+    username: root
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
+
+logging:
+  level:
+    org.springframework: INFO
+
