@@ -4,7 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.Data;
 
-import java.util.UUID;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -12,7 +12,7 @@ public class Subscribers {
 
     @Id
     private Long id;
-    private UUID uuid;
     private Double price;
+    private LocalDateTime lastNotification;
 
 }

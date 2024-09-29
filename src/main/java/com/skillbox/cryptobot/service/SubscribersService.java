@@ -6,8 +6,8 @@ import com.skillbox.cryptobot.repository.SubscribersRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -27,13 +27,13 @@ public class SubscribersService {
         }
         Subscribers  subscriber = new Subscribers();
         subscriber.setId(id);
-        subscriber.setUuid(UUID.randomUUID());
         subscribersRepository.save(subscriber);
     }
 
     public String getStringResultOfSubscribeInstallation(Long chatId, Double price) {
         Subscribers subscriber = getSubscribers(chatId);
         subscriber.setPrice(price);
+        subscriber.setLastNotification(LocalDateTime.now());
         subscribersRepository.save(subscriber);
         return "Новая подписка создана на стоимость " + price;
     }
@@ -41,6 +41,7 @@ public class SubscribersService {
     public void unsubscribe(Long chatId) {
         Subscribers subscribers = getSubscribers(chatId);
         subscribers.setPrice(null);
+        subscribers.setLastNotification(null);
         subscribersRepository.save(subscribers);
     }
 
