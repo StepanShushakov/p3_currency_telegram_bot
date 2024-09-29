@@ -37,20 +37,18 @@ public class SubscribeCommand implements IBotCommand {
         Long chatId = message.getChatId();
         SendMessage answer = new SendMessage();
         answer.setChatId(chatId);
+        answer.setParseMode(ParseMode.HTML);
         boolean formatIsCorrect = false;
         if (arguments.length == 0) {
             answer.setText("Не передана стоимость, на которую нужно установить подписку");
         } else {
-
-            try {
-                answer.setText(subscribersService.getStringResultOfSubscribeInstallation(chatId,
-                        Double.parseDouble(arguments[0].replace(',','.'))));
-                formatIsCorrect = true;
-            } catch (Exception exception) {
-                answer.setText("<b>Неправильно передана стоимость, для установки подписки!</b>\n" +
-                        "<u>ожидается число</u>, а передано: " + arguments[0]);
-                answer.setParseMode(ParseMode.HTML);
-            }
+            String input = arguments[0].replace(',', '.');
+            String doubleRegex = "^-?\\d+(\\.\\d+)?$";
+            formatIsCorrect = input.matches(doubleRegex);
+            answer.setText((formatIsCorrect
+                    ? subscribersService.getStringResultOfSubscribeInstallation(chatId, Double.parseDouble(input))
+                    : "<b>Неправильно передана стоимость, для установки подписки!</b>\n" +
+                    "<u>ожидается число</u>, а передано: <i>" + input + "</i>"));
         }
         try {
             if (formatIsCorrect) {
